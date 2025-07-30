@@ -8,3 +8,5 @@ logs
 .env
 assistant_bot.session
 desktop.ini
+
+test.py
