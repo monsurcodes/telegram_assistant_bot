@@ -16,9 +16,9 @@ class AdminPlugin(BasePlugin):
         # Register handler for /kick command with argument
         self.bot.dispatcher.register_handler(self.on_kick_command, events.NewMessage(pattern=args_command_pattern('kick')))
 
-        # Register handler for /sendlogs command with argument
+        # Register handler for /getlogs command
         self.bot.dispatcher.register_handler(self.on_sendlogs_command,
-                                             events.NewMessage(pattern=command_pattern('sendlogs')))
+                                             events.NewMessage(pattern=command_pattern('getlogs')))
 
     async def on_kick_command(self, event: events.NewMessage.Event):
         # Extract the argument (expected to be username)
