@@ -1,2 +1,4 @@
 Telethon
 python-dotenv
+motor
+pydantic
