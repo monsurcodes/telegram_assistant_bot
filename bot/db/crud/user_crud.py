@@ -13,14 +13,23 @@ class UserCRUD:
     async def create_user(self, user_data: dict) -> User:
         user = User(**user_data)
         now = datetime.now()
-        user.created_at = now
-        user.updated_at = now
-        await self.collection.update_one(
+        update_data = user.model_dump(by_alias=True)
+
+        update_data.pop("created_at", None)
+
+        update_data["updated_at"] = now
+
+        update_result = await self.collection.update_one(
             {"_id": user.id},
-            {"$set": user.model_dump(by_alias=True)},
+            {
+                "$set": update_data,
+                "$setOnInsert": {"created_at": now},
+            },
             upsert=True
         )
-        return user
+
+        doc = await self.collection.find_one({"_id": user.id})
+        return User.model_validate(doc)
 
     async def get_user(self, user_id: int) -> Optional[User]:
         doc = await self.collection.find_one({"_id": user_id})
