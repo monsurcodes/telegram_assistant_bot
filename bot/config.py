@@ -10,3 +10,10 @@ OWNER_ID = int(os.getenv("OWNER_ID"))
 
 MONGODB_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017/")
 MONGODB_DBNAME = os.getenv("MONGODB_DBNAME", "telegram_assistant_bot")
+
+WEATHERAPI_KEY = os.getenv("WEATHERAPI_KEY", "")
+
+SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
+SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
+SPOTIFY_REDIRECT_URI = os.getenv("SPOTIFY_REDIRECT_URI")
+SPOTIFY_REFRESH_TOKEN = os.getenv("SPOTIFY_REFRESH_TOKEN")
