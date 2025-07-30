@@ -1,0 +1,59 @@
+Reminder/To-Do Plugin (DONE)
+- Let users set reminders or manage their personal to-do lists via commands.
+- Examples: /remind 30 Drink water
+
+Welcome/Farewell Messages
+- Greets new members joining a group and says goodbye when someone leaves.
+- Customizable welcome/farewell text including group rules or info.
+
+Weather Lookup Plugin (DONE)
+- Fetch current weather or forecast for any city.
+- Example: /weather silchar replies with real-time weather info.
+
+Spotify current listening song
+- Fetch current listening song from spotify using spotify api
+- Example: /spotify
+
+Admin Tools Plugin
+- Commands for group admins: /kick @user, /ban @user, /mute @user, etc.
+- Features for clearing messages, promoting/demoting users.
+
+Poll & Survey Plugin
+- Run polls, quizzes, or collect group feedback.
+- Example: /poll What’s your favorite color? Red; Blue; Green
+
+AI Chat/Q&A Assistant
+- Integrate with OpenAI, Gemini or other LLMs for chat and Q&A.
+- Example: /ask Tell me a joke
+
+Personal Notes/Self-Messaging
+- Save private notes or bookmarks.
+- Example: /note Meeting at 5pm
+
+Currency Converter
+- Convert amounts between currencies using live rates.
+- Example: /convert 100 USD to INR
+
+Wikipedia/Google Searcher
+- Fetch summaries or answers from Wikipedia or Google.
+- Example: /wiki Python (programming language)
+
+YouTube Downloader
+- Download videos or audios, or fetch info about YouTube links.
+
+Group Analytics
+- Show group stats: active users, daily activity charts, etc.
+
+Anti-Spam/Moderation
+- Detect and filter spam, excessive stickers, suspicious links.
+- Optionally auto-ban offenders.
+
+Meme Generator
+- Create memes from commands.
+- Example: /meme top text | bottom text
+
+Custom Reaction/Emoji Stats
+- Track usage of specific words, emojis, or phrases.
+
+Birthday/Anniversary Manager
+- Users can register dates; bot sends celebratory messages automatically.
