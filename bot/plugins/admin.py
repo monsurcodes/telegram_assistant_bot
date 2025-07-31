@@ -14,10 +14,6 @@ class AdminPlugin(BasePlugin):
         # Register handler for /kick command with argument
         self.bot.dispatcher.register_handler(self.on_kick_command, events.NewMessage(pattern=args_command_pattern('kick')))
 
-        # Register handler for /getlogs command
-        self.bot.dispatcher.register_handler(self.on_sendlogs_command,
-                                             events.NewMessage(pattern=command_pattern('getlogs')))
-
     async def on_kick_command(self, event: events.NewMessage.Event):
         # Extract the argument (expected to be username)
         username = event.pattern_match.group(1)
@@ -29,18 +25,3 @@ class AdminPlugin(BasePlugin):
 
         # For testing, just respond with a kick confirmation message
         await event.respond(f"Kicked {username}!")
-
-    async def on_sendlogs_command(self, event: events.NewMessage.Event):
-        try:
-            user = await event.get_sender()
-
-            await self.bot.client.send_file(
-                user.id,
-                file="logs/bot.log",
-                caption="Bot logs!"
-            )
-
-            await event.respond(f"Sent log to {user.first_name}!")
-        except Exception as e:
-            logger.exception(e)
-            await event.respond("Failed to send logs. Check bot logs for details.")
