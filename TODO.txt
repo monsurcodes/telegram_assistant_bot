@@ -10,7 +10,7 @@ Weather Lookup Plugin (DONE)
 - Fetch current weather or forecast for any city.
 - Example: /weather silchar replies with real-time weather info.
 
-Spotify current listening song
+Spotify current listening song (DONE)
 - Fetch current listening song from spotify using spotify api
 - Example: /spotify
 
