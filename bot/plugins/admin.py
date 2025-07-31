@@ -1,4 +1,5 @@
-from telethon import events, errors
+from telethon import events
+
 from bot.core.base_plugin import BasePlugin
 from bot.utils.command_patterns import args_command_pattern, command_pattern
 from bot.utils.logger import get_logger
@@ -7,10 +8,7 @@ logger = get_logger(__name__)
 
 
 class AdminPlugin(BasePlugin):
-    """
-    Handles admin commands functionality including:
-    - /kick command that takes a username argument
-    """
+    name = "Admin"
 
     def register(self):
         # Register handler for /kick command with argument
