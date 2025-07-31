@@ -1,31 +1,30 @@
-from telethon import events, errors
-from bot.core.base_plugin import BasePlugin
-from bot.utils.command_patterns import command_pattern
-from bot.constants import START_MESSAGE, OWNER_START_MESSAGE
-from bot.middleware.owner_check import owner_only
+from telethon import events
+
 from bot.config import OWNER_ID
-from bot.utils.logger import get_logger
+from bot.constants import START_MESSAGE, OWNER_START_MESSAGE
+from bot.core.base_plugin import BasePlugin
 from bot.db.crud.user_crud import UserCRUD
 from bot.db.db_session import db
+from bot.middleware.register_command_help import register_help_text
+from bot.utils.command_patterns import command_pattern
+from bot.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
 user_crud = UserCRUD(db)
 
+
 class StartPlugin(BasePlugin):
-    """
-    Handles basic commands functionality including:
-    - Welcoming new users when they join
-    - Responding to /start command with a welcome message
-    """
+    name = "Start"
 
     def register(self):
         # Register handler for /start
         self.bot.dispatcher.register_handler(self.on_start_command, events.NewMessage(pattern=command_pattern('start')))
 
-        # Register handler for /start
-        self.bot.dispatcher.register_handler(self.on_help_command, events.NewMessage(pattern=command_pattern('help')))
-
+    @register_help_text(
+        "/start",
+        "Usage: /start - starts the bot"
+    )
     async def on_start_command(self, event: events.NewMessage.Event):
         # Respond to /start command with welcome message
         try:
@@ -50,8 +49,3 @@ class StartPlugin(BasePlugin):
         except Exception as e:
             logger.exception(e)
             await event.respond("Failed to send start message. Check bot logs for details.")
-
-    @owner_only
-    async def on_help_command(self, event: events.NewMessage.Event):
-        # Respond to /help command with help message
-        await event.respond("You are the owner! Executing super-secret command.")
