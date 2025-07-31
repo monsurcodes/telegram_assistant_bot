@@ -37,6 +37,12 @@ class UserCRUD:
             return User.model_validate(doc)
         return None
 
+    async def get_user_by_username(self, username: str) -> Optional[User]:
+        doc = await self.collection.find_one({"username": username.lower()})
+        if doc:
+            return User.model_validate(doc)
+        return None
+
     async def update_user(self, user_id: int, update_data: dict) -> Optional[User]:
         update_data["updated_at"] = datetime.now()
         result = await self.collection.update_one(
