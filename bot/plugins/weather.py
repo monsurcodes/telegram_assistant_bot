@@ -1,17 +1,17 @@
-from telethon import events
-from bot.core.base_plugin import BasePlugin
-from bot.utils.command_patterns import args_command_pattern
-from bot.config import WEATHERAPI_KEY
-from bot.utils.logger import get_logger
 import aiohttp
+from telethon import events
+
+from bot.config import WEATHERAPI_KEY
+from bot.core.base_plugin import BasePlugin
+from bot.middleware.register_command_help import register_help_text
+from bot.utils.command_patterns import args_command_pattern
+from bot.utils.logger import get_logger
 
 logger = get_logger(__name__)
 
+
 class WeatherPlugin(BasePlugin):
-    """
-    Fetches current weather info for a given city using WeatherAPI.com.
-    Command: /weather <city>
-    """
+    name = 'Weather'
 
     WEATHER_API_URL = "http://api.weatherapi.com/v1/current.json"
 
@@ -22,6 +22,10 @@ class WeatherPlugin(BasePlugin):
         )
         logger.info("WeatherPlugin registered /weather command")
 
+    @register_help_text(
+        '/weather <city>',
+        "Show weather for given city.\nUsage: /weather New York"
+    )
     async def weather_handler(self, event: events.NewMessage.Event):
         user = await event.get_sender()
         user_id = user.id if user else "unknown"
@@ -74,4 +78,3 @@ class WeatherPlugin(BasePlugin):
         except Exception as e:
             logger.exception(f"User {user_id}: Failed fetching weather data: {e}")
             await event.respond("Sorry, something went wrong while fetching the weather data.")
-
