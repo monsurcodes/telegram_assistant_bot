@@ -1,10 +1,16 @@
 import importlib
 import pkgutil
+
+from bot.config import DISABLED_PLUGINS
 from bot.core.base_plugin import BasePlugin
+
+DISABLED_PLUGINS.extend([])
+
 
 def discover_plugins(plugins_package):
     """
-    Discover all plugin classes (subclasses of BasePlugin) in the given plugins package.
+    Discover all plugin classes (subclasses of BasePlugin) in the given plugins package,
+    skipping plugins whose class names are in DISABLED_PLUGINS.
     Returns a list of plugin classes.
     """
     plugin_classes = []
@@ -18,9 +24,12 @@ def discover_plugins(plugins_package):
         for attribute_name in dir(module):
             attribute = getattr(module, attribute_name)
             if (
-                isinstance(attribute, type)
-                and issubclass(attribute, BasePlugin)
-                and attribute is not BasePlugin
+                    isinstance(attribute, type)
+                    and issubclass(attribute, BasePlugin)
+                    and attribute is not BasePlugin
             ):
+                # Skip if class name is in DISABLED_PLUGINS
+                if attribute.__name__ in DISABLED_PLUGINS:
+                    continue
                 plugin_classes.append(attribute)
     return plugin_classes
