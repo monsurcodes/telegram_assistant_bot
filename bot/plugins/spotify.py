@@ -1,26 +1,26 @@
+import tempfile
+from pathlib import Path
+
+import aiohttp
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
 from telethon import events
-from bot.core.base_plugin import BasePlugin
-from bot.middleware.owner_check import owner_only
-from bot.utils.command_patterns import command_pattern
+
 from bot.config import (
     SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET,
     SPOTIFY_REDIRECT_URI, SPOTIFY_REFRESH_TOKEN
 )
+from bot.core.base_plugin import BasePlugin
+from bot.middleware.owner_check import owner_only
+from bot.middleware.register_command_help import register_help_text
+from bot.utils.command_patterns import command_pattern
 from bot.utils.logger import get_logger
-import spotipy
-from spotipy.oauth2 import SpotifyOAuth
-from io import BytesIO
-import aiohttp
-import tempfile
-from pathlib import Path
 
 logger = get_logger(__name__)
 
+
 class SpotifyPlugin(BasePlugin):
-    """
-    Fetch currently playing Spotify song for the authorized user.
-    Command: /spotify
-    """
+    name = "Spotify"
 
     def register(self):
         self.bot.dispatcher.register_handler(
@@ -30,6 +30,10 @@ class SpotifyPlugin(BasePlugin):
         logger.info("SpotifyPlugin registered /spotify command")
 
     @owner_only
+    @register_help_text(
+        "/spotify",
+        "Usage: /spotify - sends the current playing song from Spotify"
+    )
     async def now_playing_handler(self, event: events.NewMessage.Event):
         user = await event.get_sender()
         logger.info(f"User {user.id} requested current Spotify song")
