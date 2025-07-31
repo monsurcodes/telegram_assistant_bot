@@ -2,6 +2,7 @@ import math
 
 from telethon import events, Button
 
+from bot.config import HELP_DISABLED_PLUGINS
 from bot.core.base_plugin import BasePlugin
 from bot.utils.command_patterns import args_command_pattern
 from bot.utils.logger import get_logger
@@ -16,7 +17,8 @@ def chunked(seq, n):
         yield seq[i:i + n]
 
 
-DISABLED_PLUGINS = ["HelpPlugin", "StartPlugin"]
+HELP_DISABLED_PLUGINS.extend(["HelpPlugin", "StartPlugin"])
+
 
 class HelpPlugin(BasePlugin):
 
@@ -28,7 +30,7 @@ class HelpPlugin(BasePlugin):
 
     def get_plugin_instances(self):
         # Return all plugin instances except HelpPlugin itself
-        return [p for p in self.bot.plugins if p.__class__.__name__ not in DISABLED_PLUGINS]
+        return [p for p in self.bot.plugins if p.__class__.__name__ not in HELP_DISABLED_PLUGINS]
 
     def get_plugin_names(self):
         return [getattr(plugin, "name", plugin.__class__.__name__) for plugin in self.get_plugin_instances()]
