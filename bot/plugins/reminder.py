@@ -1,15 +1,17 @@
+import asyncio
+
 from telethon import events
+
 from bot.core.base_plugin import BasePlugin
+from bot.middleware.register_command_help import register_help_text
 from bot.utils.command_patterns import args_command_pattern
 from bot.utils.logger import get_logger
-import asyncio
 
 logger = get_logger(__name__)
 
+
 class ReminderPlugin(BasePlugin):
-    """
-    Lets users set reminders like `/remind 30 Drink water`.
-    """
+    name = "Reminder"
 
     def register(self):
         self.bot.dispatcher.register_handler(
@@ -18,6 +20,10 @@ class ReminderPlugin(BasePlugin):
         )
         logger.info("ReminderPlugin registered handler for /remind command")
 
+    @register_help_text(
+        "/remind <seconds> <reminder>",
+        "Usage: /remind <seconds> <reminder>\n<seconds> - after how many seconds the bot will remind\n<reminder> - the reminder text"
+    )
     async def handle_reminder(self, event: events.NewMessage.Event):
         args = event.pattern_match.group(1)
         user = await event.get_sender()
