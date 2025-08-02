@@ -30,26 +30,26 @@ class ReminderPlugin(BasePlugin):
         logger.info(f"Received /remind command from user_id={user.id} username='{user.username}' args={args!r}")
 
         if not args:
-            await event.respond("Usage: /remind <seconds> <message>")
+            await event.reply("Usage: /remind <seconds> <message>")
             logger.warning(f"/remind command missing arguments from user_id={user.id}")
             return
 
         parts = args.split(maxsplit=1)
         if len(parts) != 2 or not parts[0].isdigit():
-            await event.respond("Please specify time in seconds and a message, e.g. /remind 30 Drink water")
+            await event.reply("Please specify time in seconds and a message, e.g. /remind 30 Drink water")
             logger.warning(f"/remind command invalid arguments from user_id={user.id}: {args!r}")
             return
 
         delay = int(parts[0])
         message = parts[1]
 
-        await event.respond(f"Okay! I will remind you in {delay} seconds.")
+        await event.reply(f"Okay! I will remind you in {delay} seconds.")
         logger.info(f"Scheduling reminder for user_id={user.id} in {delay} seconds: {message!r}")
 
         asyncio.create_task(self.delayed_reminder(event, delay, message))
 
     async def delayed_reminder(self, event, delay, message):
         await asyncio.sleep(delay)
-        await event.respond(f"⏰ Reminder: {message}")
+        await event.reply(f"⏰ Reminder: {message}")
         user = await event.get_sender()
         logger.info(f"Sent reminder to user_id={user.id}: {message!r}")

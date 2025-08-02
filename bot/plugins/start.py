@@ -20,11 +20,11 @@ class StartPlugin(BasePlugin):
         self.bot.dispatcher.register_handler(self.on_start_command, events.NewMessage(pattern=command_pattern('start')))
 
     async def on_start_command(self, event: events.NewMessage.Event):
-        # Respond to /start command with welcome message
+        # reply to /start command with welcome message
         try:
             user = await event.get_sender()
             if int(user.id) == int(OWNER_ID):
-                await event.respond(OWNER_START_MESSAGE.format(user.first_name))
+                await event.reply(OWNER_START_MESSAGE.format(user.first_name))
             else:
                 await user_crud.create_user({
                     '_id': user.id,
@@ -39,7 +39,7 @@ class StartPlugin(BasePlugin):
                     } if user.photo else None,
                 })
 
-                await event.respond(START_MESSAGE.format(user.first_name))
+                await event.reply(START_MESSAGE.format(user.first_name))
         except Exception as e:
             logger.exception(e)
-            await event.respond("Failed to send start message. Check bot logs for details.")
+            await event.reply("Failed to send start message. Check bot logs for details.")

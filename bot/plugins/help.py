@@ -56,7 +56,7 @@ class HelpPlugin(BasePlugin):
             if not plugin:
                 logger.warning(
                     f"Plugin '{plugin_name}' not found in loaded plugins: {[getattr(p, 'name', p.__class__.__name__) for p in self.bot.plugins]}")
-                await event.respond(f"No plugin named '{plugin_name}' found.")
+                await event.reply(f"No plugin named '{plugin_name}' found.")
                 return
 
             # Collect commands help using your decorator attributes
@@ -70,7 +70,7 @@ class HelpPlugin(BasePlugin):
                     f"**Help for {getattr(plugin, 'name', plugin.__class__.__name__)}:**\n\n"
                     + ("\n\n".join(help_lines) if help_lines else "No documented commands for this plugin.")
             )
-            await event.respond(text, parse_mode="md", link_preview=False)
+            await event.reply(text, parse_mode="md", link_preview=False)
 
     async def send_help_menu(self, event, page=0, update=False):
         plugin_names = self.get_plugin_names()
@@ -98,7 +98,7 @@ class HelpPlugin(BasePlugin):
         if update:
             await event.edit(text, buttons=button_rows, parse_mode="md")
         else:
-            await event.respond(text, buttons=button_rows, parse_mode="md", link_preview=False)
+            await event.reply(text, buttons=button_rows, parse_mode="md", link_preview=False)
 
     async def on_help_callback(self, event):
         data = event.data.decode()

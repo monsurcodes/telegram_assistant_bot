@@ -42,13 +42,13 @@ class DevPlugin(BasePlugin):
                 user_to_ban_id = replied_msg.sender_id
                 logger.info(f"Ban via reply: user_id={user_to_ban_id}")
             else:
-                await event.respond("Cannot determine the user to ban via reply.")
+                await event.reply("Cannot determine the user to ban via reply.")
                 return
         else:
             # Ban user by argument (username or numeric user_id)
             arg = event.pattern_match.group(1)
             if not arg:
-                await event.respond("Please reply to a user or specify a username or user ID.")
+                await event.reply("Please reply to a user or specify a username or user ID.")
                 return
             arg = arg.strip()
             logger.info(f"Ban via argument: {arg}")
@@ -61,21 +61,21 @@ class DevPlugin(BasePlugin):
                 if user_record:
                     user_to_ban_id = user_record.id  # You use alias _id = id in model
                 else:
-                    await event.respond(f"User with username @{arg_username} not found in database.")
+                    await event.reply(f"User with username @{arg_username} not found in database.")
                     return
 
         if user_to_ban_id is None:
-            await event.respond("Could not determine user to ban.")
+            await event.reply("Could not determine user to ban.")
             return
 
         # Update user's 'is_pm_banned' flag to True using UserCRUD
         updated_user = await user_crud.update_user(user_to_ban_id, {"is_pm_banned": True})
 
         if updated_user:
-            await event.respond(f"User with ID `{user_to_ban_id}` has been banned from using private messages.")
+            await event.reply(f"User with ID `{user_to_ban_id}` has been banned from using private messages.")
             logger.info(f"User {user_to_ban_id} banned from PM use by owner.")
         else:
-            await event.respond(f"No user with ID `{user_to_ban_id}` was found or was already banned.")
+            await event.reply(f"No user with ID `{user_to_ban_id}` was found or was already banned.")
             logger.warning(f"Tried banning user {user_to_ban_id} but no document was updated.")
 
     @owner_only
@@ -92,12 +92,12 @@ class DevPlugin(BasePlugin):
             if replied_msg and replied_msg.sender_id:
                 user_to_unban_id = replied_msg.sender_id
             else:
-                await event.respond("Cannot determine the user to unban via reply.")
+                await event.reply("Cannot determine the user to unban via reply.")
                 return
         else:
             arg = event.pattern_match.group(1)
             if not arg:
-                await event.respond("Please reply to a user or specify a username or user ID.")
+                await event.reply("Please reply to a user or specify a username or user ID.")
                 return
             arg = arg.strip()
 
@@ -109,20 +109,20 @@ class DevPlugin(BasePlugin):
                 if user_record:
                     user_to_unban_id = user_record.id
                 else:
-                    await event.respond(f"User with username @{arg_username} not found in database.")
+                    await event.reply(f"User with username @{arg_username} not found in database.")
                     return
 
         if user_to_unban_id is None:
-            await event.respond("Could not determine user to unban.")
+            await event.reply("Could not determine user to unban.")
             return
 
         updated_user = await user_crud.update_user(user_to_unban_id, {"is_pm_banned": False})
         if updated_user:
-            await event.respond(
+            await event.reply(
                 f"User with ID `{user_to_unban_id}` has been unbanned and can now use private messages.")
             logger.info(f"User {user_to_unban_id} unbanned from PM use by owner.")
         else:
-            await event.respond(f"No user with ID `{user_to_unban_id}` was found or was not banned.")
+            await event.reply(f"No user with ID `{user_to_unban_id}` was found or was not banned.")
 
     @owner_only
     @register_help_text(
@@ -139,7 +139,7 @@ class DevPlugin(BasePlugin):
                 caption="Bot logs!"
             )
 
-            await event.respond(f"Sent log to {user.first_name}!")
+            await event.reply(f"Sent log to {user.first_name}!")
         except Exception as e:
             logger.exception(e)
-            await event.respond("Failed to send logs. Check bot logs for details.")
+            await event.reply("Failed to send logs. Check bot logs for details.")

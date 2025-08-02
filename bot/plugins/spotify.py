@@ -89,15 +89,15 @@ class SpotifyPlugin(BasePlugin):
                                         temp_path.unlink()
                                 return
                     # If downloading image failed
-                    await event.respond(caption)
+                    await event.reply(caption)
                 else:
-                    await event.respond(caption)
+                    await event.reply(caption)
 
                 logger.info(f"Sent current Spotify song and cover to user {user.id}")
             else:
-                await event.respond("No song is currently playing on your Spotify account.")
+                await event.reply("No song is currently playing on your Spotify account.")
                 logger.info(f"No currently playing song for user {user.id}")
         except Exception as e:
             logger.exception(f"Failed to fetch Spotify song for user_id={user.id}: {e}")
-            await event.respond(
+            await event.reply(
                 "Sorry, couldn't retrieve Spotify info. Reauthorize your Spotify account or check the logs.")

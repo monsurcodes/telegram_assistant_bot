@@ -8,5 +8,5 @@ def owner_only(handler_func):
         if int(sender.id) == int(OWNER_ID):
             return await handler_func(self, event, *args, **kwargs)
         else:
-            await event.respond("Unauthorized: Only the bot owner can use this command.")
+            await event.reply("Unauthorized: Only the bot owner can use this command.")
     return wrapper

@@ -33,7 +33,7 @@ class WeatherPlugin(BasePlugin):
 
         if not city:
             logger.warning(f"User {user_id} sent /weather command without city argument")
-            await event.respond("Please provide a city name. Example: /weather New York")
+            await event.reply("Please provide a city name. Example: /weather New York")
             return
 
         city = city.strip()
@@ -41,7 +41,7 @@ class WeatherPlugin(BasePlugin):
 
         if not WEATHERAPI_KEY:
             logger.error(f"User {user_id}: WeatherAPI.com API key is missing")
-            await event.respond("Weather service is not configured properly. Contact the bot admin.")
+            await event.reply("Weather service is not configured properly. Contact the bot admin.")
             return
 
         params = {
@@ -56,7 +56,7 @@ class WeatherPlugin(BasePlugin):
                     if resp.status != 200:
                         logger.warning(
                             f"User {user_id}: Could not get weather data for '{city}', API response code {resp.status}")
-                        await event.respond(f"Could not get weather data for '{city}'. Please check the city name.")
+                        await event.reply(f"Could not get weather data for '{city}'. Please check the city name.")
                         return
                     data = await resp.json()
 
@@ -72,9 +72,9 @@ class WeatherPlugin(BasePlugin):
                 f"Humidity: {current.get('humidity', '?')}%\n"
                 f"Wind Speed: {current.get('wind_kph', '?')} kph"
             )
-            await event.respond(reply)
+            await event.reply(reply)
             logger.info(f"Sent weather info for city: {city} to user {user_id}")
 
         except Exception as e:
             logger.exception(f"User {user_id}: Failed fetching weather data: {e}")
-            await event.respond("Sorry, something went wrong while fetching the weather data.")
+            await event.reply("Sorry, something went wrong while fetching the weather data.")
