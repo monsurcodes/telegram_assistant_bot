@@ -14,7 +14,7 @@ Spotify current listening song (DONE)
 - Fetch current listening song from spotify using spotify api
 - Example: /spotify
 
-Admin Tools Plugin
+Admin Tools Plugin (DONE)
 - Commands for group admins: /kick @user, /ban @user, /mute @user, etc.
 - Features for clearing messages, promoting/demoting users.
 

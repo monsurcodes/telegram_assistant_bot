@@ -29,8 +29,8 @@ class DevPlugin(BasePlugin):
     @owner_only
     @register_help_text(
         "/ban_pm <username|user_id>",
-        "Bans the specified user from using this bot privately.\n"
-        "Usage:\n- Reply to user's message in group with /ban_pm\n- Or /ban_pm <username or user_id>\n"
+        "Bans the specified user from using this bot privately."
+        "Usage:\n- Reply to user's message in group with /ban_pm\n- Or /ban_pm <username or user_id>"
     )
     async def ban_user_from_pm(self, event: events.NewMessage.Event):
         user_to_ban_id: Optional[int] = None
@@ -81,8 +81,8 @@ class DevPlugin(BasePlugin):
     @owner_only
     @register_help_text(
         "/unban_pm <username|user_id>",
-        "Unbans the specified user to allow usage of this bot privately.\n"
-        "Usage:\n- Reply to user's message in group with /unban_pm\n- Or /unban_pm <username or user_id>\n"
+        "Unbans the specified user to allow usage of this bot privately."
+        "Usage:\n- Reply to user's message in group with /unban_pm- Or /unban_pm <username or user_id>"
     )
     async def unban_user_from_pm(self, event: events.NewMessage.Event):
         user_to_unban_id: Optional[int] = None
@@ -127,7 +127,7 @@ class DevPlugin(BasePlugin):
     @owner_only
     @register_help_text(
         "/getlogs",
-        "Sends bot logs to developer\n"
+        "Sends bot logs to developer."
     )
     async def on_sendlogs_command(self, event: events.NewMessage.Event):
         try:

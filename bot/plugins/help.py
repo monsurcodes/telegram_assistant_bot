@@ -68,7 +68,7 @@ class HelpPlugin(BasePlugin):
 
             text = (
                     f"**Help for {getattr(plugin, 'name', plugin.__class__.__name__)}:**\n\n"
-                    + ("\n".join(help_lines) if help_lines else "No documented commands for this plugin.")
+                    + ("\n\n".join(help_lines) if help_lines else "No documented commands for this plugin.")
             )
             await event.respond(text, parse_mode="md", link_preview=False)
 
@@ -118,7 +118,7 @@ class HelpPlugin(BasePlugin):
                     help_lines.append(f"`{fn.__help_command__}` — {fn.__help_text__}")
 
             text = f"**Help for {plugin_name}:**\n\n" + (
-                ("\n".join(help_lines)) if help_lines else "No documented commands for this plugin.")
+                ("\n\n".join(help_lines)) if help_lines else "No documented commands for this plugin.")
             await event.edit(
                 text,
                 buttons=[
