@@ -4,5 +4,3 @@ motor
 pydantic
 aiohttp
 spotipy
-Flask
-gunicorn
