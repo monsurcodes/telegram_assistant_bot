@@ -67,6 +67,7 @@ class StartPlugin(BasePlugin):
             logger.exception(e)
             await event.reply("Failed to send start message. Check bot logs for details.")
 
+    @pm_ban_check
     async def on_start_callback(self, event: events.CallbackQuery.Event):
         data = event.data.decode()
         if data.startswith("show_commands"):
