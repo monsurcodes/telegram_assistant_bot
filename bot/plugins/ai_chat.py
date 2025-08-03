@@ -34,4 +34,7 @@ class AIChatPlugin(BasePlugin):
         ai_client = GeminiAIClient()
         response = await ai_client.ask(query.strip())
 
+        if len(response) > 3500:
+            response = response[:3500] + "..."
+
         await thinking_msg.edit(f"💡 **AI Answer:**\n\n{response}", parse_mode="md")
