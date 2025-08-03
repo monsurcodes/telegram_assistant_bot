@@ -3,6 +3,7 @@ import asyncio
 from telethon import events
 
 from bot.core.base_plugin import BasePlugin
+from bot.middleware.pm_ban_check import pm_ban_check
 from bot.middleware.register_command_help import register_help_text
 from bot.utils.command_patterns import args_command_pattern
 from bot.utils.logger import get_logger
@@ -24,6 +25,7 @@ class ReminderPlugin(BasePlugin):
         "/remind <seconds> <reminder>",
         "Usage: /remind <seconds> <reminder>\n<seconds> - after how many seconds the bot will remind\n<reminder> - the reminder text"
     )
+    @pm_ban_check
     async def handle_reminder(self, event: events.NewMessage.Event):
         args = event.pattern_match.group(1)
         user = await event.get_sender()
