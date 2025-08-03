@@ -1,5 +1,8 @@
-from typing import Optional
+import platform
+import sys
 
+import psutil
+from telethon import __version__ as telethon_version
 from telethon import events
 
 from bot.core.base_plugin import BasePlugin
@@ -7,7 +10,7 @@ from bot.db.crud.user_crud import UserCRUD
 from bot.db.db_session import db
 from bot.middleware.owner_check import owner_only
 from bot.middleware.register_command_help import register_help_text
-from bot.utils.command_patterns import args_command_pattern, command_pattern
+from bot.utils.command_patterns import command_pattern, args_command_pattern
 from bot.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -24,7 +27,9 @@ class DevPlugin(BasePlugin):
                                              events.NewMessage(pattern=args_command_pattern("unban_pm")))
         self.bot.dispatcher.register_handler(self.on_sendlogs_command,
                                              events.NewMessage(pattern=command_pattern('getlogs')))
-        logger.info("DevPlugin registered [ban_pm, unban_pm, getlogs] commands")
+        self.bot.dispatcher.register_handler(self.stats_command,
+                                             events.NewMessage(pattern=command_pattern("stats")))
+        logger.info("DevPlugin registered [ban_pm, unban_pm, getlogs, stats] commands")
 
     @owner_only
     @register_help_text(
@@ -33,7 +38,7 @@ class DevPlugin(BasePlugin):
         "Usage:\n- Reply to user's message in group with /ban_pm\n- Or /ban_pm <username or user_id>"
     )
     async def ban_user_from_pm(self, event: events.NewMessage.Event):
-        user_to_ban_id: Optional[int] = None
+        user_to_ban_id = None
 
         if event.is_reply:
             # Ban the user who sent the replied message
@@ -85,7 +90,7 @@ class DevPlugin(BasePlugin):
         "Usage:\n- Reply to user's message in group with /unban_pm- Or /unban_pm <username or user_id>"
     )
     async def unban_user_from_pm(self, event: events.NewMessage.Event):
-        user_to_unban_id: Optional[int] = None
+        user_to_unban_id = None
 
         if event.is_reply:
             replied_msg = await event.get_reply_message()
@@ -143,3 +148,38 @@ class DevPlugin(BasePlugin):
         except Exception as e:
             logger.exception(e)
             await event.reply("Failed to send logs. Check bot logs for details.")
+
+    @owner_only
+    @register_help_text(
+        "/stats",
+        "Show statistics: Telethon and Python version, system info, RAM, CPU, and number of users."
+    )
+    async def stats_command(self, event: events.NewMessage.Event):
+        try:
+            # Get system info
+            tele_version = telethon_version
+            python_version = sys.version.split()[0]
+            platform_info = f"{platform.system()} {platform.release()} ({platform.machine()})"
+            ram = psutil.virtual_memory()
+            ram_used_mb = ram.used // (1024 * 1024)
+            ram_total_mb = ram.total // (1024 * 1024)
+            ram_percent = ram.percent
+            cpu_percent = psutil.cpu_percent(interval=0.5)
+
+            # Count users in db
+            users_count = await user_crud.collection.count_documents({})
+
+            text = (
+                "📊 **Bot Stats:**\n\n"
+                f"🤖 **Telethon:** `{tele_version}`\n"
+                f"🐍 **Python:** `{python_version}`\n"
+                f"💻 **System:** `{platform_info}`\n"
+                f"🧠 **RAM Usage:** `{ram_used_mb} MB` / `{ram_total_mb} MB` ({ram_percent}%)\n"
+                f"🖥️ **CPU Usage:** `{cpu_percent}%`\n"
+                f"👤 **Registered Users:** `{users_count}`"
+            )
+
+            await event.reply(text, parse_mode="md")
+        except Exception as e:
+            logger.exception(e)
+            await event.reply("Failed to get stats. Check bot logs for details.")
