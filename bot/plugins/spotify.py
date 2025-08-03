@@ -39,18 +39,18 @@ class SpotifyPlugin(BasePlugin):
         logger.info(f"User {user.id} requested current Spotify song")
 
         try:
-            sp = spotipy.Spotify(
-                auth_manager=SpotifyOAuth(
-                    client_id=SPOTIFY_CLIENT_ID,
-                    client_secret=SPOTIFY_CLIENT_SECRET,
-                    redirect_uri=SPOTIFY_REDIRECT_URI,
-                    scope="user-read-currently-playing",
-                    cache_path=None
-                )
+            auth_manager = SpotifyOAuth(
+                client_id=SPOTIFY_CLIENT_ID,
+                client_secret=SPOTIFY_CLIENT_SECRET,
+                redirect_uri=SPOTIFY_REDIRECT_URI,
+                scope="user-read-currently-playing",
+                cache_path=None
             )
-            # Set refresh token and get access token
-            sp.auth_manager.refresh_token = SPOTIFY_REFRESH_TOKEN
-            sp.auth_manager.get_access_token(as_dict=False)
+            auth_manager.refresh_token = SPOTIFY_REFRESH_TOKEN
+
+            # Refresh Access Token manually (future-proof)
+            token_info = auth_manager.refresh_access_token(SPOTIFY_REFRESH_TOKEN)
+            sp = spotipy.Spotify(auth=token_info['access_token'])
 
             current = sp.current_user_playing_track()
             if current and current.get("item"):
@@ -66,12 +66,10 @@ class SpotifyPlugin(BasePlugin):
                 )
 
                 if cover_url:
-                    # Download the image and save temporarily
                     async with aiohttp.ClientSession() as session:
                         async with session.get(cover_url) as resp:
                             if resp.status == 200:
                                 image_bytes = await resp.read()
-                                # Use tempfile to create a temp jpg file
                                 with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as tmp_file:
                                     tmp_file.write(image_bytes)
                                     temp_path = Path(tmp_file.name)
@@ -84,11 +82,9 @@ class SpotifyPlugin(BasePlugin):
                                         force_document=False
                                     )
                                 finally:
-                                    # Cleanup temp file
                                     if temp_path.exists():
                                         temp_path.unlink()
                                 return
-                    # If downloading image failed
                     await event.reply(caption)
                 else:
                     await event.reply(caption)
@@ -101,3 +97,4 @@ class SpotifyPlugin(BasePlugin):
             logger.exception(f"Failed to fetch Spotify song for user_id={user.id}: {e}")
             await event.reply(
                 "Sorry, couldn't retrieve Spotify info. Reauthorize your Spotify account or check the logs.")
+
