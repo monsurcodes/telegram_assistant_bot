@@ -2,7 +2,7 @@ import math
 
 from telethon import events, Button
 
-from bot.config import HELP_DISABLED_PLUGINS
+from bot.config import HELP_DISABLED_PLUGINS, OWNER_PLUGINS, OWNER_ID
 from bot.core.base_plugin import BasePlugin
 from bot.utils.command_patterns import args_command_pattern
 from bot.utils.logger import get_logger
@@ -28,27 +28,42 @@ class HelpPlugin(BasePlugin):
         self.bot.dispatcher.register_handler(self.on_help_callback, events.CallbackQuery)
         logger.info("HelpPlugin registered /help command")
 
-    def get_plugin_instances(self):
-        # Return all plugin instances except HelpPlugin itself
-        return [p for p in self.bot.plugins if p.__class__.__name__ not in HELP_DISABLED_PLUGINS]
+    # New
+    def get_plugin_instances(self, owner=False):
+        # Exclude disabled plugins
+        plugins = [
+            p for p in self.bot.plugins
+            if p.__class__.__name__ not in HELP_DISABLED_PLUGINS
+        ]
+        # If not owner, exclude OWNER_PLUGINS (by class name or .name)
+        if not owner:
+            plugins = [
+                p for p in plugins
+                if getattr(p, "name", p.__class__.__name__) not in OWNER_PLUGINS
+                   and p.__class__.__name__ not in OWNER_PLUGINS
+            ]
+        return plugins
 
-    def get_plugin_names(self):
-        return [getattr(plugin, "name", plugin.__class__.__name__) for plugin in self.get_plugin_instances()]
+    def get_plugin_names(self, owner=False):
+        return [
+            getattr(plugin, "name", plugin.__class__.__name__)
+            for plugin in self.get_plugin_instances(owner=owner)
+        ]
 
     async def on_help_command(self, event):
+        sender = await event.get_sender()
+        is_owner = int(sender.id) == int(OWNER_ID)
+
         args = event.raw_text.strip().split(maxsplit=1)
         if len(args) == 1:
             # No arg, show main menu (page=0)
-            await self.send_help_menu(event, page=0)
+            await self.send_help_menu(event, page=0, owner=is_owner)
         else:
-            # User requested /help <pluginname>
             plugin_name = args[1].strip()
-
-            # Case-insensitive search for plugin
             logger.info(f"Help requested for plugin: '{plugin_name}'")
 
             plugin = next(
-                (p for p in self.get_plugin_instances()
+                (p for p in self.get_plugin_instances(owner=is_owner)
                  if getattr(p, "name", p.__class__.__name__).lower() == plugin_name.lower()),
                 None
             )
@@ -72,10 +87,10 @@ class HelpPlugin(BasePlugin):
             )
             await event.reply(text, parse_mode="md", link_preview=False)
 
-    async def send_help_menu(self, event, page=0, update=False):
-        plugin_names = self.get_plugin_names()
+    async def send_help_menu(self, event, page=0, owner=False, update=False):
+        plugin_names = self.get_plugin_names(owner=owner)
         total_plugins = len(plugin_names)
-        total_pages = math.ceil(total_plugins / PLUGINS_PER_PAGE)
+        total_pages = math.ceil(total_plugins / PLUGINS_PER_PAGE) if total_plugins else 1
         page = page % total_pages if total_pages > 0 else 0
         start = page * PLUGINS_PER_PAGE
         end = start + PLUGINS_PER_PAGE
@@ -101,10 +116,12 @@ class HelpPlugin(BasePlugin):
             await event.reply(text, buttons=button_rows, parse_mode="md", link_preview=False)
 
     async def on_help_callback(self, event):
+        sender = await event.get_sender()
+        is_owner = int(sender.id) == int(OWNER_ID)
         data = event.data.decode()
         if data.startswith("help_plugin:"):
             _, plugin_name, page_str = data.split(":")
-            plugin = next((p for p in self.get_plugin_instances()
+            plugin = next((p for p in self.get_plugin_instances(owner=is_owner)
                            if getattr(p, "name", p.__class__.__name__) == plugin_name), None)
 
             if not plugin:
@@ -133,15 +150,18 @@ class HelpPlugin(BasePlugin):
             action = parts[1]
             page = int(parts[2]) if len(parts) > 2 and parts[2].isdigit() else 0
 
-            plugin_names = self.get_plugin_names()
+            sender = await event.get_sender()
+            is_owner = int(sender.id) == int(OWNER_ID)
+
+            plugin_names = self.get_plugin_names(owner=is_owner)
             total_plugins = len(plugin_names)
-            total_pages = math.ceil(total_plugins / PLUGINS_PER_PAGE)
+            total_pages = math.ceil(total_plugins / PLUGINS_PER_PAGE) if total_plugins else 1
 
             if action == "back":
-                await self.send_help_menu(event, page=(page - 1) % total_pages, update=True)
+                await self.send_help_menu(event, page=(page - 1) % total_pages, owner=is_owner, update=True)
             elif action == "next":
-                await self.send_help_menu(event, page=(page + 1) % total_pages, update=True)
+                await self.send_help_menu(event, page=(page + 1) % total_pages, owner=is_owner, update=True)
             elif action == "menu":
-                await self.send_help_menu(event, page=page, update=True)
+                await self.send_help_menu(event, page=page, owner=is_owner, update=True)
             elif action == "close":
                 await event.delete()
