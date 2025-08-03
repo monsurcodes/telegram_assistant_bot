@@ -11,6 +11,7 @@ OWNER_ID = int(os.getenv("OWNER_ID"))
 
 DISABLED_PLUGINS = os.getenv("DISABLED_PLUGINS").strip().split(",")
 HELP_DISABLED_PLUGINS = os.getenv("HELP_DISABLED_PLUGINS").strip().split(",")
+OWNER_PLUGINS = os.getenv("OWNER_PLUGINS").strip().split(",")
 
 MONGODB_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017/")
 MONGODB_DBNAME = os.getenv("MONGODB_DBNAME", "telegram_assistant_bot")
