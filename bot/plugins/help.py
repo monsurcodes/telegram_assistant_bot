@@ -17,7 +17,7 @@ def chunked(seq, n):
         yield seq[i:i + n]
 
 
-HELP_DISABLED_PLUGINS.extend(["HelpPlugin", "StartPlugin"])
+HELP_DISABLED_PLUGINS.extend(["HelpPlugin", "StartPlugin", "WelcomeFarewellPlugin"])
 
 
 class HelpPlugin(BasePlugin):
