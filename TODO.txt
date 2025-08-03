@@ -34,7 +34,7 @@ Currency Converter
 - Convert amounts between currencies using live rates.
 - Example: /convert 100 USD to INR
 
-Wikipedia/Google Searcher
+Wikipedia/Google Searcher (DONE)
 - Fetch summaries or answers from Wikipedia or Google.
 - Example: /wiki Python (programming language)
 
