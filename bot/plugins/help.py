@@ -4,6 +4,7 @@ from telethon import events, Button
 
 from bot.config import HELP_DISABLED_PLUGINS, OWNER_PLUGINS, OWNER_ID
 from bot.core.base_plugin import BasePlugin
+from bot.middleware.pm_ban_check import pm_ban_check
 from bot.utils.command_patterns import args_command_pattern
 from bot.utils.logger import get_logger
 
@@ -50,6 +51,7 @@ class HelpPlugin(BasePlugin):
             for plugin in self.get_plugin_instances(owner=owner)
         ]
 
+    @pm_ban_check
     async def on_help_command(self, event):
         sender = await event.get_sender()
         is_owner = int(sender.id) == int(OWNER_ID)
@@ -115,6 +117,7 @@ class HelpPlugin(BasePlugin):
         else:
             await event.reply(text, buttons=button_rows, parse_mode="md", link_preview=False)
 
+    @pm_ban_check
     async def on_help_callback(self, event):
         sender = await event.get_sender()
         is_owner = int(sender.id) == int(OWNER_ID)
