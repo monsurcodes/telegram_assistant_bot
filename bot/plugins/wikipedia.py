@@ -1,12 +1,13 @@
-import wikipedia
 from telethon import events
 
 from bot.core.base_plugin import BasePlugin
 from bot.middleware.register_command_help import register_help_text
+from bot.services.wiki_service import WikiService
 from bot.utils.command_patterns import args_command_pattern
 from bot.utils.logger import get_logger
 
 logger = get_logger(__name__)
+
 
 class WikiPlugin(BasePlugin):
     name = "Wikipedia"
@@ -25,35 +26,28 @@ class WikiPlugin(BasePlugin):
     async def wiki_search_handler(self, event: events.NewMessage.Event):
         query = event.pattern_match.group(1)
         if not query:
-            await event.reply("Please provide a search term. Example: `/wiki Python`", parse_mode="md")
+            await event.reply("Please provide a search term. Example: `/wiki Python (programming language)`", parse_mode="md")
             return
 
+        placeholder_msg = await event.reply("🔎 Searching Wikipedia...")
+
         try:
-            # Use wikipedia summary with a limit on sentences
-            summary = wikipedia.summary(query, sentences=5, auto_suggest=True, redirect=True)
-
-            # Optionally limit length to avoid very long messages
-            # if len(summary) > 1000:
-            #     summary = summary[:1000] + "..."
-
+            summary = await WikiService.get_summary(query)
             response = f"**Wikipedia summary for [{query}]:**\n\n{summary}"
-            await event.reply(response, parse_mode="md")
+            await placeholder_msg.edit(response, parse_mode="md")
             logger.info(f"Sent Wikipedia summary for query '{query}' to user {event.sender_id}")
 
-        except wikipedia.DisambiguationError as e:
-            options = e.options[:5]  # Give user up to 5 options to choose from
-            options_str = "\n".join(f"- {opt}" for opt in options)
+        except WikiService.WikiDisambiguationError as e:
+            options_str = "\n".join(f"- {opt}" for opt in e.options[:5])
             msg = (
                 f"Your query `{query}` may refer to multiple topics. Did you mean:\n{options_str}\n\n"
                 f"Please be more specific."
             )
-            await event.reply(msg, parse_mode="md")
-            logger.warning(f"Wikipedia disambiguation for query '{query}'")
+            await placeholder_msg.edit(msg, parse_mode="md")
 
-        except wikipedia.PageError:
-            await event.reply(f"Sorry, no Wikipedia page found for `{query}`.", parse_mode="md")
-            logger.warning(f"Wikipedia page not found for query '{query}'")
+        except WikiService.WikiPageError:
+            await placeholder_msg.edit(f"Sorry, no Wikipedia page found for `{query}`.", parse_mode="md")
 
         except Exception as e:
-            await event.reply("Oops! Something went wrong while fetching Wikipedia summary.")
+            await placeholder_msg.edit("Oops! Something went wrong while fetching Wikipedia summary.")
             logger.error(f"Error in wikipedia search for '{query}': {e}")
