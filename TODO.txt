@@ -2,7 +2,7 @@ Reminder/To-Do Plugin (DONE)
 - Let users set reminders or manage their personal to-do lists via commands.
 - Examples: /remind 30 Drink water
 
-Welcome/Farewell Messages
+Welcome/Farewell Messages (DONE)
 - Greets new members joining a group and says goodbye when someone leaves.
 - Customizable welcome/farewell text including group rules or info.
 
@@ -22,7 +22,7 @@ Poll & Survey Plugin
 - Run polls, quizzes, or collect group feedback.
 - Example: /poll What’s your favorite color? Red; Blue; Green
 
-AI Chat/Q&A Assistant
+AI Chat/Q&A Assistant (DONE)
 - Integrate with OpenAI, Gemini or other LLMs for chat and Q&A.
 - Example: /ask Tell me a joke
 
@@ -41,9 +41,6 @@ Wikipedia/Google Searcher (DONE)
 YouTube Downloader
 - Download videos or audios, or fetch info about YouTube links.
 
-Group Analytics
-- Show group stats: active users, daily activity charts, etc.
-
 Anti-Spam/Moderation
 - Detect and filter spam, excessive stickers, suspicious links.
 - Optionally auto-ban offenders.
@@ -52,8 +49,3 @@ Meme Generator
 - Create memes from commands.
 - Example: /meme top text | bottom text
 
-Custom Reaction/Emoji Stats
-- Track usage of specific words, emojis, or phrases.
-
-Birthday/Anniversary Manager
-- Users can register dates; bot sends celebratory messages automatically.
