@@ -1,10 +1,9 @@
-import logging
-
 import google.generativeai as genai
 
 from bot.config import GEMINI_API_KEY
+from bot.utils.logger import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class GeminiAIClient:

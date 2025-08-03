@@ -1,7 +1,9 @@
 import aiohttp
-import logging
 
-logger = logging.getLogger(__name__)
+from bot.utils.logger import get_logger
+
+logger = get_logger(__name__)
+
 
 class WeatherService:
     WEATHER_API_URL = "http://api.weatherapi.com/v1/current.json"

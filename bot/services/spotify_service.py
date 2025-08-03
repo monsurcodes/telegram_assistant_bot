@@ -1,4 +1,3 @@
-import logging
 import tempfile
 from pathlib import Path
 
@@ -6,7 +5,9 @@ import aiohttp
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
-logger = logging.getLogger(__name__)
+from bot.utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class SpotifyService:
