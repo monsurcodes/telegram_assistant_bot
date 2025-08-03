@@ -1,6 +1,7 @@
 from telethon import events
 
 from bot.core.base_plugin import BasePlugin
+from bot.middleware.pm_ban_check import pm_ban_check
 from bot.middleware.register_command_help import register_help_text
 from bot.services.ai_client import GeminiAIClient
 from bot.utils.command_patterns import args_command_pattern
@@ -19,6 +20,7 @@ class AIChatPlugin(BasePlugin):
         )
         logger.info("AIChatPlugin registered /ask command.")
 
+    @pm_ban_check
     @register_help_text(
         "/ask <your question>",
         "Ask anything and get an AI-powered answer using Google Gemini!"
