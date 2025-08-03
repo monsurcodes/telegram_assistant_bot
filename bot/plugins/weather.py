@@ -2,6 +2,7 @@ from telethon import events
 
 from bot.config import WEATHERAPI_KEY
 from bot.core.base_plugin import BasePlugin
+from bot.middleware.pm_ban_check import pm_ban_check
 from bot.middleware.register_command_help import register_help_text
 from bot.services.weather_service import WeatherService
 from bot.utils.command_patterns import args_command_pattern
@@ -29,6 +30,7 @@ class WeatherPlugin(BasePlugin):
         '/weather <city>',
         "Show weather for given city.\nUsage: /weather New York"
     )
+    @pm_ban_check
     async def weather_handler(self, event: events.NewMessage.Event):
         user = await event.get_sender()
         user_id = user.id if user else "unknown"
