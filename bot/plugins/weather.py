@@ -1,9 +1,9 @@
-import aiohttp
 from telethon import events
 
 from bot.config import WEATHERAPI_KEY
 from bot.core.base_plugin import BasePlugin
 from bot.middleware.register_command_help import register_help_text
+from bot.services.weather_service import WeatherService
 from bot.utils.command_patterns import args_command_pattern
 from bot.utils.logger import get_logger
 
@@ -13,7 +13,10 @@ logger = get_logger(__name__)
 class WeatherPlugin(BasePlugin):
     name = 'Weather'
 
-    WEATHER_API_URL = "http://api.weatherapi.com/v1/current.json"
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.weather_service = WeatherService(WEATHERAPI_KEY)
 
     def register(self):
         self.bot.dispatcher.register_handler(
@@ -44,37 +47,10 @@ class WeatherPlugin(BasePlugin):
             await event.reply("Weather service is not configured properly. Contact the bot admin.")
             return
 
-        params = {
-            "key": WEATHERAPI_KEY,
-            "q": city,
-            "aqi": "no"
-        }
+        reply = await self.weather_service.get_current_weather(city)
+        if reply is None:
+            await event.reply(f"Could not get weather data for '{city}'. Please check the city name.")
+            return
 
-        try:
-            async with aiohttp.ClientSession() as session:
-                async with session.get(self.WEATHER_API_URL, params=params) as resp:
-                    if resp.status != 200:
-                        logger.warning(
-                            f"User {user_id}: Could not get weather data for '{city}', API response code {resp.status}")
-                        await event.reply(f"Could not get weather data for '{city}'. Please check the city name.")
-                        return
-                    data = await resp.json()
-
-            current = data.get("current", {})
-            location = data.get("location", {})
-            condition = current.get("condition", {})
-
-            reply = (
-                f"🌤 Weather in {location.get('name', city)}, {location.get('region', '')}:\n"
-                f"{condition.get('text', '')}\n"
-                f"Temperature: {current.get('temp_c', '?')}°C\n"
-                f"Feels Like: {current.get('feelslike_c', '?')}°C\n"
-                f"Humidity: {current.get('humidity', '?')}%\n"
-                f"Wind Speed: {current.get('wind_kph', '?')} kph"
-            )
-            await event.reply(reply)
-            logger.info(f"Sent weather info for city: {city} to user {user_id}")
-
-        except Exception as e:
-            logger.exception(f"User {user_id}: Failed fetching weather data: {e}")
-            await event.reply("Sorry, something went wrong while fetching the weather data.")
+        await event.reply(reply)
+        logger.info(f"Sent weather info for city: {city} to user {user_id}")
