@@ -1,9 +1,3 @@
-import tempfile
-from pathlib import Path
-
-import aiohttp
-import spotipy
-from spotipy.oauth2 import SpotifyOAuth
 from telethon import events
 
 from bot.config import (
@@ -13,6 +7,7 @@ from bot.config import (
 from bot.core.base_plugin import BasePlugin
 from bot.middleware.owner_check import owner_only
 from bot.middleware.register_command_help import register_help_text
+from bot.services.spotify_service import SpotifyService
 from bot.utils.command_patterns import command_pattern
 from bot.utils.logger import get_logger
 
@@ -21,6 +16,16 @@ logger = get_logger(__name__)
 
 class SpotifyPlugin(BasePlugin):
     name = "Spotify"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.spotify_service = SpotifyService(
+            SPOTIFY_CLIENT_ID,
+            SPOTIFY_CLIENT_SECRET,
+            SPOTIFY_REDIRECT_URI,
+            SPOTIFY_REFRESH_TOKEN
+        )
 
     def register(self):
         self.bot.dispatcher.register_handler(
@@ -39,62 +44,41 @@ class SpotifyPlugin(BasePlugin):
         logger.info(f"User {user.id} requested current Spotify song")
 
         try:
-            auth_manager = SpotifyOAuth(
-                client_id=SPOTIFY_CLIENT_ID,
-                client_secret=SPOTIFY_CLIENT_SECRET,
-                redirect_uri=SPOTIFY_REDIRECT_URI,
-                scope="user-read-currently-playing",
-                cache_path=None
-            )
-            auth_manager.refresh_token = SPOTIFY_REFRESH_TOKEN
-
-            # Refresh Access Token manually (future-proof)
-            token_info = auth_manager.refresh_access_token(SPOTIFY_REFRESH_TOKEN)
-            sp = spotipy.Spotify(auth=token_info['access_token'])
-
-            current = sp.current_user_playing_track()
-            if current and current.get("item"):
-                track = current["item"]
-                images = track["album"]["images"]
-                cover_url = images[0]["url"] if images else None
-
-                caption = (
-                    f"🎵 **Now Playing on Spotify** 🎶\n\n"
-                    f"**🎤 Song:** {track['name']}\n"
-                    f"👩‍🎤 **Artist(s):** {', '.join(a['name'] for a in track['artists'])}\n"
-                    f"💿 **Album:** {track['album']['name']}"
-                )
-
-                if cover_url:
-                    async with aiohttp.ClientSession() as session:
-                        async with session.get(cover_url) as resp:
-                            if resp.status == 200:
-                                image_bytes = await resp.read()
-                                with tempfile.NamedTemporaryFile(delete=False, suffix='.jpg') as tmp_file:
-                                    tmp_file.write(image_bytes)
-                                    temp_path = Path(tmp_file.name)
-
-                                try:
-                                    await self.bot.client.send_file(
-                                        event.chat_id,
-                                        file=str(temp_path),
-                                        caption=caption,
-                                        force_document=False
-                                    )
-                                finally:
-                                    if temp_path.exists():
-                                        temp_path.unlink()
-                                return
-                    await event.reply(caption)
-                else:
-                    await event.reply(caption)
-
-                logger.info(f"Sent current Spotify song and cover to user {user.id}")
-            else:
+            song_info = await self.spotify_service.get_current_playing()
+            if not song_info:
                 await event.reply("No song is currently playing on your Spotify account.")
                 logger.info(f"No currently playing song for user {user.id}")
+                return
+
+            caption = (
+                f"🎵 **Now Playing on Spotify** 🎶\n\n"
+                f"**🎤 Song:** {song_info['song']}\n"
+                f"👩‍🎤 **Artist(s):** {song_info['artists']}\n"
+                f"💿 **Album:** {song_info['album']}"
+            )
+
+            if song_info["cover_url"]:
+                temp_path = await self.spotify_service.download_cover_image(song_info["cover_url"])
+                if temp_path:
+                    try:
+                        await self.bot.client.send_file(
+                            event.chat_id,
+                            file=str(temp_path),
+                            caption=caption,
+                            force_document=False
+                        )
+                        return
+                    finally:
+                        if temp_path.exists():
+                            temp_path.unlink()
+                # Fallback if image download failed
+                await event.reply(caption)
+            else:
+                await event.reply(caption)
+
+            logger.info(f"Sent current Spotify song and cover to user {user.id}")
         except Exception as e:
             logger.exception(f"Failed to fetch Spotify song for user_id={user.id}: {e}")
             await event.reply(
-                "Sorry, couldn't retrieve Spotify info. Reauthorize your Spotify account or check the logs.")
-
+                "Sorry, couldn't retrieve Spotify info. Reauthorize your Spotify account or check the logs."
+            )
