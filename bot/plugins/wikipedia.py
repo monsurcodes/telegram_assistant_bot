@@ -1,6 +1,7 @@
 from telethon import events
 
 from bot.core.base_plugin import BasePlugin
+from bot.middleware.pm_ban_check import pm_ban_check
 from bot.middleware.register_command_help import register_help_text
 from bot.services.wiki_service import WikiService
 from bot.utils.command_patterns import args_command_pattern
@@ -23,6 +24,7 @@ class WikiPlugin(BasePlugin):
         "/wiki <query>",
         "Fetch a summary from Wikipedia for the given query. Example: /wiki Python (programming language)"
     )
+    @pm_ban_check
     async def wiki_search_handler(self, event: events.NewMessage.Event):
         query = event.pattern_match.group(1)
         if not query:
@@ -34,6 +36,8 @@ class WikiPlugin(BasePlugin):
         try:
             summary = await WikiService.get_summary(query)
             response = f"**Wikipedia summary for [{query}]:**\n\n{summary}"
+            if len(response) > 3500:
+                response = response[:3500] + "..."
             await placeholder_msg.edit(response, parse_mode="md")
             logger.info(f"Sent Wikipedia summary for query '{query}' to user {event.sender_id}")
 
