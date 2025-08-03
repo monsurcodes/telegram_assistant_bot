@@ -5,6 +5,7 @@ from bot.constants import START_MESSAGE, OWNER_START_MESSAGE
 from bot.core.base_plugin import BasePlugin
 from bot.db.crud.user_crud import UserCRUD
 from bot.db.db_session import db
+from bot.middleware.pm_ban_check import pm_ban_check
 from bot.utils.command_patterns import command_pattern
 from bot.utils.logger import get_logger
 
@@ -22,6 +23,7 @@ class StartPlugin(BasePlugin):
         )
         self.bot.dispatcher.register_handler(self.on_start_callback, events.CallbackQuery)
 
+    @pm_ban_check
     async def on_start_command(self, event: events.NewMessage.Event):
         try:
             user = await event.get_sender()
