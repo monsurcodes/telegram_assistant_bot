@@ -6,3 +6,4 @@ aiohttp
 spotipy
 psutil
 wikipedia
+google-generativeai
